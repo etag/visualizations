@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Reader times</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
+    <style>
+      .background-rect
+      {
+        fill: lightgray;
+      }
+      .time-line
+      {
+        stroke:red;
+      }
+    </style>
+  </head>
+  <body>
+    <script>
+      var margin = {top:30,bottom:30,left:30,right:30};
+      var outerWidth = 500;
+      var outerHeight = 500;
+      var gap = 5;
+      var lineWidth = 2;
+
+      var innerWidth = outerWidth - margin.left - margin.right;
+      var innerHeight = outerHeight - margin.top - margin.bottom;
+      var svg = d3.select("body").append("svg")
+        .attr("width", outerWidth)
+        .attr("height", outerHeight);
+      var plotArea = svg.append("g")
+        .attr("transform","translate(" + margin.right + "," + margin.top + ")");
+      var xScale = d3.scale.linear().range([0, innerWidth]);
+
+      function render(data)
+      {
+        //Get data in right form
+        var tag_data = type(data.results);
+        //Set up
+        var results = data.results
+        xScale.domain(d3.extent(results, function(d) {return d.timestamp;}));
+        var rectHeight = innerWidth/tag_data.length - gap;
+        var tags = plotArea.selectAll("g").data(tag_data);
+
+        //Enter phase - create background rectangles
+        var tagGroup = tags.enter().append("g")
+          .attr("class","tag_group")
+          .attr("transform", function(d,i) {return "translate(0," + i*(rectHeight+gap) + ")";});
+        tagGroup.append("rect")
+          .attr("class","background-rect")
+          .attr("width",innerWidth)
+          .attr("height", rectHeight);
+        var readLine = tagGroup.selectAll("line").data(function(d) {return d.times;}).enter().append("line");
+        readLine.attr("class","time-line")
+          .attr("x1", function(d) {return xScale(d);})
+          .attr("y1", 0)
+          .attr("x2", function(d) {return xScale(d);})
+          .attr("y2", rectHeight)
+          .attr("stroke-width",lineWidth);
+        //Enter phase - add lines from reads
+      }
+
+      function type(data)
+      {
+        var results = [];
+        for (var i = 0; i<data.length; i++)
+        {
+          var element = data[i];
+          element.timestamp = new Date(element.timestamp);
+          var index = contains(results, "tag_id", element.tag_id);
+          var tag;
+          if (index < 0)
+          {
+            tag = {
+              "tag_id": element.tag_id,
+              "times" : []
+            }
+            results.push(tag);
+          }
+          else
+          {
+            tag = results[index];
+          }
+
+          tag.times.push(element.timestamp)
+
+        }
+
+        return results;
+      }
+
+      function contains(list, key, value)
+      {
+        for (var i = 0; i < list.length; i++)
+        {
+          if (list[i][key] === value)
+            return i;
+        }
+        return -1;
+      }
+
+      d3.json("/sample_data.json", render);
+
+    </script>
+  </body>
+</html>

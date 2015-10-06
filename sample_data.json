@@ -1,0 +1,271 @@
+{
+  "count": null,
+  "previous": null,
+  "results": [
+    {
+      "timestamp": "2015-08-04T17:44:43Z",
+      "location": {
+        "type": "Point",
+        "coordinates": [
+          35.2200717,
+          -97.2836388
+        ]
+      },
+      "tag_id": "04181DC55F",
+      "reader": "GPR0DATA"
+    },
+    {
+      "timestamp": "2015-08-04T17:44:50Z",
+      "location": {
+        "type": "Point",
+        "coordinates": [
+          35.2200717,
+          -97.2836388
+        ]
+      },
+      "tag_id": "04181DEDE1",
+      "reader": "GPR0DATA"
+    },
+    {
+      "timestamp": "2015-08-04T17:45:03Z",
+      "location": {
+        "type": "Point",
+        "coordinates": [
+          35.2200717,
+          -97.2836388
+        ]
+      },
+      "tag_id": "0416F1FFF2",
+      "reader": "GPR0DATA"
+    },
+    {
+      "timestamp": "2015-08-04T17:45:15Z",
+      "location": {
+        "type": "Point",
+        "coordinates": [
+          35.2200717,
+          -97.2836388
+        ]
+      },
+      "tag_id": "04787DEDE1",
+      "reader": "GPR0DATA"
+    },
+    {
+      "timestamp": "2015-08-04T17:45:21Z",
+      "location": {
+        "type": "Point",
+        "coordinates": [
+          35.2200717,
+          -97.2836388
+        ]
+      },
+      "tag_id": "04787DEDE1",
+      "reader": "GPR0DATA"
+    },
+    {
+      "timestamp": "2015-08-04T17:45:27Z",
+      "location": {
+        "type": "Point",
+        "coordinates": [
+          35.2200717,
+          -97.2836388
+        ]
+      },
+      "tag_id": "04181DEDE1",
+      "reader": "GPR0DATA"
+    },
+    {
+      "timestamp": "2015-08-04T17:45:58Z",
+      "location": {
+        "type": "Point",
+        "coordinates": [
+          35.2200717,
+          -97.2836388
+        ]
+      },
+      "tag_id": "04181DEDE1",
+      "reader": "GPR0DATA"
+    },
+    {
+      "timestamp": "2015-08-04T17:46:00Z",
+      "location": {
+        "type": "Point",
+        "coordinates": [
+          35.2200717,
+          -97.2836388
+        ]
+      },
+      "tag_id": "04781DEDE7",
+      "reader": "GPR0DATA"
+    },
+    {
+      "timestamp": "2015-08-04T17:46:05Z",
+      "location": {
+        "type": "Point",
+        "coordinates": [
+          35.2200717,
+          -97.2836388
+        ]
+      },
+      "tag_id": "04181DEDE1",
+      "reader": "GPR0DATA"
+    },
+    {
+      "timestamp": "2015-08-04T17:46:24Z",
+      "location": {
+        "type": "Point",
+        "coordinates": [
+          35.2200717,
+          -97.2836388
+        ]
+      },
+      "tag_id": "04181DEDE1",
+      "reader": "GPR0DATA"
+    },
+    {
+      "timestamp": "2015-08-04T17:46:42Z",
+      "location": {
+        "type": "Point",
+        "coordinates": [
+          35.2200717,
+          -97.2836388
+        ]
+      },
+      "tag_id": "0416F1FFF2",
+      "reader": "GPR0DATA"
+    },
+    {
+      "timestamp": "2015-08-04T17:46:51Z",
+      "location": {
+        "type": "Point",
+        "coordinates": [
+          35.2200717,
+          -97.2836388
+        ]
+      },
+      "tag_id": "04181DC55F",
+      "reader": "GPR0DATA"
+    },
+    {
+      "timestamp": "2015-08-04T17:47:03Z",
+      "location": {
+        "type": "Point",
+        "coordinates": [
+          35.2200717,
+          -97.2836388
+        ]
+      },
+      "tag_id": "04181DEDE1",
+      "reader": "GPR0DATA"
+    },
+    {
+      "timestamp": "2015-08-04T17:47:15Z",
+      "location": {
+        "type": "Point",
+        "coordinates": [
+          35.2200717,
+          -97.2836388
+        ]
+      },
+      "tag_id": "0416F1FFF2",
+      "reader": "GPR0DATA"
+    },
+    {
+      "timestamp": "2015-08-04T17:56:44Z",
+      "location": {
+        "type": "Point",
+        "coordinates": [
+          35.2200717,
+          -97.2836388
+        ]
+      },
+      "tag_id": "0416F1FFF2",
+      "reader": "GPR1DATA"
+    },
+    {
+      "timestamp": "2015-08-04T17:56:49Z",
+      "location": {
+        "type": "Point",
+        "coordinates": [
+          35.2200717,
+          -97.2836388
+        ]
+      },
+      "tag_id": "04181DEDE1",
+      "reader": "GPR1DATA"
+    },
+    {
+      "timestamp": "2015-08-04T17:57:07Z",
+      "location": {
+        "type": "Point",
+        "coordinates": [
+          35.2200717,
+          -97.2836388
+        ]
+      },
+      "tag_id": "0416F1FA52",
+      "reader": "GPR1DATA"
+    },
+    {
+      "timestamp": "2015-08-04T17:57:14Z",
+      "location": {
+        "type": "Point",
+        "coordinates": [
+          35.2200717,
+          -97.2836388
+        ]
+      },
+      "tag_id": "0416F20B38",
+      "reader": "GPR1DATA"
+    },
+    {
+      "timestamp": "2015-08-04T17:57:18Z",
+      "location": {
+        "type": "Point",
+        "coordinates": [
+          35.2200717,
+          -97.2836388
+        ]
+      },
+      "tag_id": "0416F1FFF2",
+      "reader": "GPR1DATA"
+    },
+    {
+      "timestamp": "2015-08-04T17:57:41Z",
+      "location": {
+        "type": "Point",
+        "coordinates": [
+          35.2200717,
+          -97.2836388
+        ]
+      },
+      "tag_id": "04181DEDE1",
+      "reader": "GPR1DATA"
+    },
+    {
+      "timestamp": "2015-08-04T17:57:52Z",
+      "location": {
+        "type": "Point",
+        "coordinates": [
+          35.2200717,
+          -97.2836388
+        ]
+      },
+      "tag_id": "04181DC55F",
+      "reader": "GPR1DATA"
+    },
+    {
+      "timestamp": "2015-08-04T17:57:58Z",
+      "location": {
+        "type": "Point",
+        "coordinates": [
+          35.2200717,
+          -97.2836388
+        ]
+      },
+      "tag_id": "04181DEDE1",
+      "reader": "GPR1DATA"
+    }
+  ],
+  "next": null
+}
