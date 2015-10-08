@@ -9,10 +9,6 @@
       {
         fill: lightgray;
       }
-      .time-line
-      {
-        stroke:red;
-      }
     </style>
   </head>
   <body>
@@ -31,33 +27,39 @@
       var plotArea = svg.append("g")
         .attr("transform","translate(" + margin.right + "," + margin.top + ")");
       var xScale = d3.scale.linear().range([0, innerWidth]);
+      var colorScale = d3.scale.category10();
 
       function render(data)
       {
         //Get data in right form
         var tag_data = type(data.results);
+        var results = data.results;
+
         //Set up
-        var results = data.results
         xScale.domain(d3.extent(results, function(d) {return d.timestamp;}));
+        colorScale.domain(d3.extent(results, function(d) {return d.reader;}));
         var rectHeight = innerWidth/tag_data.length - gap;
         var tags = plotArea.selectAll("g").data(tag_data);
 
-        //Enter phase - create background rectangles
+        //Enter phase - create group for each tag
         var tagGroup = tags.enter().append("g")
           .attr("class","tag_group")
           .attr("transform", function(d,i) {return "translate(0," + i*(rectHeight+gap) + ")";});
+        //Enter phase - create background rectangles
         tagGroup.append("rect")
           .attr("class","background-rect")
           .attr("width",innerWidth)
           .attr("height", rectHeight);
-        var readLine = tagGroup.selectAll("line").data(function(d) {return d.times;}).enter().append("line");
-        readLine.attr("class","time-line")
-          .attr("x1", function(d) {return xScale(d);})
-          .attr("y1", 0)
-          .attr("x2", function(d) {return xScale(d);})
-          .attr("y2", rectHeight)
-          .attr("stroke-width",lineWidth);
         //Enter phase - add lines from reads
+        var readLine = tagGroup.selectAll("line").data(function(d) {return d.reads;}).enter().append("line");
+        readLine.attr("class","time-line")
+          .attr("x1", function(d) {return xScale(d.timestamp);})
+          .attr("y1", 0)
+          .attr("x2", function(d) {return xScale(d.timestamp);})
+          .attr("y2", rectHeight)
+          .attr("stroke", function (d) {return colorScale(d.reader);})
+          .attr("stroke-width",lineWidth);
+
       }
 
       function type(data)
@@ -73,7 +75,7 @@
           {
             tag = {
               "tag_id": element.tag_id,
-              "times" : []
+              "reads" : []
             }
             results.push(tag);
           }
@@ -82,7 +84,12 @@
             tag = results[index];
           }
 
-          tag.times.push(element.timestamp)
+          var read = {
+            "timestamp": element.timestamp,
+            "reader": element.reader
+          };
+
+          tag.reads.push(read);
 
         }
 
