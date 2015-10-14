@@ -7,8 +7,8 @@
       "location": {
         "type": "Point",
         "coordinates": [
-          35.2200717,
-          -97.2836388
+          35.199374,
+          -96.847790
         ]
       },
       "tag_id": "04181DC55F",
@@ -19,8 +19,8 @@
       "location": {
         "type": "Point",
         "coordinates": [
-          35.2200717,
-          -97.2836388
+          35.199374,
+          -96.847790
         ]
       },
       "tag_id": "04181DEDE1",
@@ -31,8 +31,8 @@
       "location": {
         "type": "Point",
         "coordinates": [
-          35.2200717,
-          -97.2836388
+          35.199374,
+          -96.847790
         ]
       },
       "tag_id": "0416F1FFF2",
@@ -43,8 +43,8 @@
       "location": {
         "type": "Point",
         "coordinates": [
-          35.2200717,
-          -97.2836388
+          35.199374,
+          -96.847790
         ]
       },
       "tag_id": "04787DEDE1",
@@ -55,8 +55,8 @@
       "location": {
         "type": "Point",
         "coordinates": [
-          35.2200717,
-          -97.2836388
+          35.199374,
+          -96.847790
         ]
       },
       "tag_id": "04787DEDE1",
@@ -67,8 +67,8 @@
       "location": {
         "type": "Point",
         "coordinates": [
-          35.2200717,
-          -97.2836388
+          35.199374,
+          -96.847790
         ]
       },
       "tag_id": "04181DEDE1",
@@ -79,8 +79,8 @@
       "location": {
         "type": "Point",
         "coordinates": [
-          35.2200717,
-          -97.2836388
+          35.199374,
+          -96.847790
         ]
       },
       "tag_id": "04181DEDE1",
@@ -91,8 +91,8 @@
       "location": {
         "type": "Point",
         "coordinates": [
-          35.2200717,
-          -97.2836388
+          35.199374,
+          -96.847790
         ]
       },
       "tag_id": "04781DEDE7",
@@ -103,8 +103,8 @@
       "location": {
         "type": "Point",
         "coordinates": [
-          35.2200717,
-          -97.2836388
+          35.199374,
+          -96.847790
         ]
       },
       "tag_id": "04181DEDE1",
@@ -115,8 +115,8 @@
       "location": {
         "type": "Point",
         "coordinates": [
-          35.2200717,
-          -97.2836388
+          35.199374,
+          -96.847790
         ]
       },
       "tag_id": "04181DEDE1",
@@ -127,8 +127,8 @@
       "location": {
         "type": "Point",
         "coordinates": [
-          35.2200717,
-          -97.2836388
+          35.199374,
+          -96.847790
         ]
       },
       "tag_id": "0416F1FFF2",
@@ -139,8 +139,8 @@
       "location": {
         "type": "Point",
         "coordinates": [
-          35.2200717,
-          -97.2836388
+          35.199374,
+          -96.847790
         ]
       },
       "tag_id": "04181DC55F",
@@ -151,8 +151,8 @@
       "location": {
         "type": "Point",
         "coordinates": [
-          35.2200717,
-          -97.2836388
+          35.199374,
+          -96.847790
         ]
       },
       "tag_id": "04181DEDE1",
@@ -163,8 +163,8 @@
       "location": {
         "type": "Point",
         "coordinates": [
-          35.2200717,
-          -97.2836388
+          35.199374,
+          -96.847790
         ]
       },
       "tag_id": "0416F1FFF2",
@@ -265,6 +265,42 @@
       },
       "tag_id": "04181DEDE1",
       "reader": "GPR1DATA"
+    },
+    {
+      "timestamp": "2015-08-04T17:54:58Z",
+      "location": {
+        "type": "Point",
+        "coordinates": [
+          35.356747,
+          -97.227266
+        ]
+      },
+      "tag_id": "04181DEDE1",
+      "reader": "GPR2DATA"
+    },
+    {
+      "timestamp": "2015-08-04T17:52:58Z",
+      "location": {
+        "type": "Point",
+        "coordinates": [
+          34.934749,
+          -97.102798
+        ]
+      },
+      "tag_id": "04181DEDE1",
+      "reader": "GPR3DATA"
+    },
+    {
+      "timestamp": "2015-08-04T17:52:58Z",
+      "location": {
+        "type": "Point",
+        "coordinates": [
+          35.194413,
+          -97.136192
+        ]
+      },
+      "tag_id": "04181DEDE1",
+      "reader": "GPR3DATA"
     }
   ],
   "next": null

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Reads map</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
+    <style>
+
+    </style>
+  </head>
+  <body>
+    <script>
+      //configurable variables
+      var margin = {top:30,bottom:30,left:30,right:30};
+      var outerWidth = 500;
+      var outerHeight = 500;
+      var circleRadius = 2;
+
+      //Set up plot area
+      var innerWidth = outerWidth - margin.left - margin.right;
+      var innerHeight = outerHeight - margin.top - margin.bottom;
+      var svg = d3.select("body").append("svg")
+        .attr("width", outerWidth)
+        .attr("height", outerHeight);
+      var plotArea = svg.append("g")
+        .attr("transform","translate(" + margin.right + "," + margin.top + ")");
+      var xScale = d3.scale.linear().range([0, innerWidth]);
+      var yScale = d3.scale.linear().range([innerHeight,0]);
+
+      function render(data)
+      {
+        //Get data in right form
+        var results = data.results;
+
+        console.log(results);
+
+        //Set up
+        xScale.domain(d3.extent(results, function(d) {return d.location.coordinates[0];}));
+        yScale.domain(d3.extent(results, function(d) {return d.location.coordinates[1];}));
+
+        var reads = plotArea.selectAll("g").data(results);
+
+        //Enter phase - add dot for each read
+        reads.enter().append("circle")
+          .attr("r",circleRadius)
+          .attr("cx", function (d) {return xScale(d.location.coordinates[0]);})
+          .attr("cy", function (d) {return yScale(d.location.coordinates[1]);});
+      }
+
+      function type(data)
+      {
+        var results = [];
+        for (var i = 0; i<data.length; i++)
+        {
+          var element = data[i];
+          element.timestamp = new Date(element.timestamp);
+          var index = contains(results, "tag_id", element.tag_id);
+          var tag;
+          if (index < 0)
+          {
+            tag = {
+              "tag_id": element.tag_id,
+              "reads" : []
+            }
+            results.push(tag);
+          }
+          else
+          {
+            tag = results[index];
+          }
+
+          var read = {
+            "timestamp": element.timestamp,
+            "reader": element.reader
+          };
+
+          tag.reads.push(read);
+
+        }
+
+        return results;
+      }
+
+      function contains(list, key, value)
+      {
+        for (var i = 0; i < list.length; i++)
+        {
+          if (list[i][key] === value)
+            return i;
+        }
+        return -1;
+      }
+
+      d3.json("/sample_data.json", render);
+
+    </script>
+  </body>
+</html>
