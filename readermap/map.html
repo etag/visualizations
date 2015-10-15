@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Reads map</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/1.6.19/topojson.min.js"></script>
+    <style>
+    </style>
+  </head>
+  <body>
+    <script>
+    var width = 600,
+    height = width * 500 / 960;
+    var box = {"lat": {"high": 49, "low": 24.2}, "long": {"high": -124.9, "low": -66.3}};
+
+    var center = {"lat": (box.lat.high + box.lat.low)/2,"long": (box.long.high + box.long.low)/2};
+    var diagonal = Math.sqrt(Math.pow((box.lat.high - box.lat.low),2) + Math.pow((box.long.high - box.long.low),2));
+
+    var svg = d3.select("body").append("svg")
+        .attr("width", width)
+        .attr("height", height);
+    d3.json("/readermap/ne_110m_admin_1_states_provinces/sts.json", function(error, final) {
+      var colorScale = d3.scale.category10();
+
+      var projection = d3.geo.conicEqualArea()
+          .scale(38000/diagonal)
+          .translate([width/2, height/2])
+          .rotate([96, 0])
+          .center([center.lat - 38.1, center.long + 136.6])
+          .parallels([box.lat.low, box.lat.high]);
+      var path = d3.geo.path().projection(projection);
+      //var states = topojson.feature(final, final.objects.sts);
+      var states = final;
+
+      colorScale.domain([0,states.length]);
+
+      svg.selectAll(".state")
+        .data(states.features)
+        .enter().append("path")
+        .attr("class", function(d) { return "state " + d.properties.iso_3166_2; })
+        .attr("d", path)
+        .attr("fill", function(d,i) {return colorScale(i);});
+    });
+    </script>
+  </body>
+</html>
