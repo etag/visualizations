@@ -1,0 +1,26 @@
+{
+  "type": "FeatureCollection",
+  "features":
+  [
+    {
+      "type": "Feature",
+      "geometry": {
+          "type": "Point",
+          "coordinates": [-90.19, 36.5]
+        },
+      "properties": {
+        "name": "Reader1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+          "type": "Point",
+          "coordinates": [-89.55, 36.0]
+        },
+      "properties": {
+        "name": "Reader2"
+      }
+    }
+  ]
+}

@@ -32,8 +32,6 @@
         //Get data in right form
         var readers = type(data.results);
 
-        console.log(readers);
-
         //Set up
         xScale.domain(d3.extent(readers, function(d) {return d.location.coordinates[0];}));
         yScale.domain(d3.extent(readers, function(d) {return d.location.coordinates[1];}));

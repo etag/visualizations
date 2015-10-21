@@ -10,38 +10,129 @@
   </head>
   <body>
     <script>
-    var width = 600,
-    height = width * 500 / 960;
-    var box = {"lat": {"high": 49, "low": 24.2}, "long": {"high": -124.9, "low": -66.3}};
-
-    var center = {"lat": (box.lat.high + box.lat.low)/2,"long": (box.long.high + box.long.low)/2};
-    var diagonal = Math.sqrt(Math.pow((box.lat.high - box.lat.low),2) + Math.pow((box.long.high - box.long.low),2));
+    var width = 600;
+    var height = width * 500 / 960;
+    var radius = 5;
 
     var svg = d3.select("body").append("svg")
         .attr("width", width)
         .attr("height", height);
-    d3.json("/readermap/ne_110m_admin_1_states_provinces/sts.json", function(error, final) {
-      var colorScale = d3.scale.category10();
 
-      var projection = d3.geo.conicEqualArea()
-          .scale(38000/diagonal)
-          .translate([width/2, height/2])
-          .rotate([96, 0])
-          .center([center.lat - 38.1, center.long + 136.6])
-          .parallels([box.lat.low, box.lat.high]);
-      var path = d3.geo.path().projection(projection);
-      //var states = topojson.feature(final, final.objects.sts);
-      var states = final;
+    var colorScale = d3.scale.category10();
+    var projection = d3.geo.albers()
+      .scale(1)
+      .translate([0, 0]);
+    var path = d3.geo.path()
+      .projection(projection)
+      .pointRadius(radius);
 
-      colorScale.domain([0,states.length]);
+    d3.json("/readermap/ne_110m_admin_1_states_provinces/sts.json", function(error, states) {
+      if(error) throw error;
 
-      svg.selectAll(".state")
-        .data(states.features)
-        .enter().append("path")
-        .attr("class", function(d) { return "state " + d.properties.iso_3166_2; })
-        .attr("d", path)
-        .attr("fill", function(d,i) {return colorScale(i);});
+      d3.json("/sample_data.json", function(error, reads) {
+        if (error) throw error;
+
+        console.log(reads);
+        
+        locations = type(reads.results);
+
+        console.log(locations);
+
+        var b = path.bounds(locations);
+        var s = .95 / Math.max((b[1][0] - b[0][0]) / width, (b[1][1] - b[0][1]) / height);
+        var t = [(width - s * (b[1][0] + b[0][0])) / 2, (height - s * (b[1][1] + b[0][1])) / 2];
+
+        projection
+          .scale(s)
+          .translate(t);
+
+        colorScale.domain([0,states.length]);
+
+        svg.selectAll(".state")
+            .data(states.features)
+            .enter().append("path")
+            .attr("class", "state")
+            .attr("id", function(d) { return d.properties.iso_3166_2;})
+            .attr("d", path)
+            .attr("fill", function(d,i) {return colorScale(i);});
+
+        svg.selectAll(".reader-location")
+          .data(locations.features)
+          .enter().append("circle")
+          .attr("class", "reader-location")
+          .attr("transform", function(d) { return "translate(" + projection(d.geometry.coordinates) + ")"; })
+          .attr("r", radius)
+          .append("svg:title")
+          .text(function (d) {
+            var result = "Reader: " + d.properties.name + "\n";
+            for (var i = 0; i < d.properties.reads.length; i++)
+            {
+              result += "Tag ID: " + d.properties.reads[i].tag_id + " Time: " + new Date(d.properties.reads[i].timestamp) + "\n";
+            }
+            return result;
+          });
+      });
     });
+
+    function type(data)
+    {
+      var result = {
+        "type": "FeatureCollection",
+        "features": []
+      };
+
+      for (var i = 0; i<data.length; i++)
+      {
+        var element = data[i];
+        var index = contains(result.features, element.reader);
+        var reader;
+        if (index < 0)
+        {
+          reader = {
+            "type": "Feature",
+            "geometry": swap(element.location),
+            "properties": {
+              "name": element.reader,
+              "reads" : []
+            }
+          }
+          result.features.push(reader);
+        }
+        else
+        {
+          reader = result.features[index];
+        }
+
+        var read = {
+          "timestamp": element.timestamp,
+          "tag_id": element.tag_id
+        };
+
+        reader.properties.reads.push(read);
+      }
+
+      return result;
+    }
+
+    function contains(list, value)
+    {
+      for (var i = 0; i < list.length; i++)
+      {
+        if (list[i].properties.name === value)
+          return i;
+      }
+      return -1;
+    }
+
+    function swap(location)
+    {
+      var temp = location.coordinates[0];
+      location.coordinates[0] = location.coordinates[1];
+      location.coordinates[1] = temp;
+
+      return location;
+    }
+
     </script>
   </body>
 </html>
