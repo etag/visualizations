@@ -1,0 +1,30 @@
+
+<html>
+<head lang="en">
+    <meta charset="utf-8">
+    <meta name="Mark Stacy" content="OU Informatics">
+</head>
+<body style="padding:5px;">
+<!-- End Model -->
+</body>
+<script src="bower_components/jquery/dist/jquery.min.js"></script>
+<script>
+var url = "http://mgmic.oscer.ou.edu/api/catalog/data/data_portal/gene_database/.jsonp"
+var url_etag = "http://head.ouetag.org/api/etag/reader_location/.json"
+$.getJSON( url_etag, function( data ) {
+  var items = [];
+  $.each( data.results, function( key, val ) {
+    items.push( "<li id='" + key + "'>" + JSON.stringify(val) + "</li>" );
+  });
+ 
+  $( "<ul/>", {
+    "class": "my-new-list",
+    html: items.join( "" )
+  }).appendTo( "body" );
+});
+
+</script>
+</html>
+
+
+
