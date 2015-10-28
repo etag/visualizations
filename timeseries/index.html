@@ -1,113 +1,161 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8">
-    <title>Reader times</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
-    <style>
+    <head>
+      <meta charset="utf-8">
+	    <title>D3 Axis Example</title>
+	    <script src="http://d3js.org/d3.v2.js"></script>
+      <style>
       .background-rect
       {
         fill: lightgray;
       }
-    </style>
-  </head>
-  <body>
+      .names
+      {
+        font: 10px sans-serif;
+      }
+      text {
+        fill: black;
+        font: 10px sans-serif;
+        text-anchor: middle;
+      }
+
+      .axis path,
+      .axis line {
+        fill: none;
+        stroke: black;
+        shape-rendering: crispEdges;
+      }
+      </style>
+    </head>
+    <body>
     <script>
-      var margin = {top:30,bottom:30,left:30,right:30};
-      var outerWidth = 500;
-      var outerHeight = 500;
-      var gap = 5;
-      var lineWidth = 2;
+        var margin = {top:30,bottom:30,left:30,right:30};
+        var outerWidth = 600;
+        var outerHeight = 600;
+        var padding = 100;
+        var gap = 5;
+        var lineWidth = 2;
+        var innerWidth = 500 - margin.left - margin.right;
+        var innerHeight = outerHeight - margin.top - margin.bottom;
 
-      var innerWidth = outerWidth - margin.left - margin.right;
-      var innerHeight = outerHeight - margin.top - margin.bottom;
-      var svg = d3.select("body").append("svg")
-        .attr("width", outerWidth)
-        .attr("height", outerHeight);
-      var plotArea = svg.append("g")
-        .attr("transform","translate(" + margin.right + "," + margin.top + ")");
-      var xScale = d3.scale.linear().range([0, innerWidth]);
-      var colorScale = d3.scale.category10();
+        var svg = d3.select("body").append("svg")
+            .attr("width", outerWidth)
+            .attr("height", outerHeight);
 
-      function render(data)
-      {
-        //Get data in right form
-        var tag_data = type(data.results);
-        var results = data.results;
+        var plotArea = svg.append("g")
+            .attr("transform","translate(" + margin.right + "," + margin.top + ")");
 
-        //Set up
-        xScale.domain(d3.extent(results, function(d) {return d.timestamp;}));
-        colorScale.domain(d3.extent(results, function(d) {return d.reader;}));
-        var rectHeight = innerWidth/tag_data.length - gap;
-        var tags = plotArea.selectAll("g").data(tag_data);
+        var colorScale = d3.scale.category10();
 
-        //Enter phase - create group for each tag
-        var tagGroup = tags.enter().append("g")
-          .attr("class","tag_group")
-          .attr("transform", function(d,i) {return "translate(0," + i*(rectHeight+gap) + ")";});
-        //Enter phase - create background rectangles
-        tagGroup.append("rect")
-          .attr("class","background-rect")
-          .attr("width",innerWidth)
-          .attr("height", rectHeight);
-        //Enter phase - add lines from reads
-        var readLine = tagGroup.selectAll("line").data(function(d) {return d.reads;}).enter().append("line");
-        readLine.attr("class","time-line")
-          .attr("x1", function(d) {return xScale(d.timestamp);})
-          .attr("y1", 0)
-          .attr("x2", function(d) {return xScale(d.timestamp);})
-          .attr("y2", rectHeight)
-          .attr("stroke", function (d) {return colorScale(d.reader);})
-          .attr("stroke-width",lineWidth);
+        var xScale = d3.time.scale.utc()
+		      .range([0, innerWidth]);
 
-      }
+        // define the x axis
+        var xAxis = d3.svg.axis()
+            .orient("bottom")
+            .scale(xScale)
+            .ticks(d3.time.seconds, 30)
+            .tickFormat(d3.time.format("%Y-%m-%d %H:%M:%S"));
 
-      function type(data)
-      {
-        var results = [];
-        for (var i = 0; i<data.length; i++)
+        function render(data)
         {
-          var element = data[i];
-          element.timestamp = new Date(element.timestamp);
-          var index = contains(results, "tag_id", element.tag_id);
-          var tag;
-          if (index < 0)
+          //Get data in right form
+          var tag_data = type(data.results);
+          var results = data.results;
+
+          //Set up
+          colorScale.domain(d3.extent(results, function(d) {return d.reader;}));
+          var rectHeight = innerWidth/tag_data.length - gap;
+          var tags = plotArea.selectAll("g").data(tag_data);
+          var extent = d3.extent(results, function(d) {return d.timestamp;});
+          xScale.domain(extent);
+
+          // draw x axis with labels and move to the bottom of the chart area
+          svg.append("g")
+              .attr("class", "axis")   // give it a class so it can be used to select only xaxis labels  below
+              .attr("transform", "translate(30," + (outerHeight - padding*1.3) + ")")
+              .call(xAxis);
+
+          // now rotate text on x axis
+          // solution based on idea here: https://groups.google.com/forum/?fromgroups#!topic/d3-js/heOBPQF3sAY
+          // first move the text left so no longer centered on the tick
+          // then rotate up to get 90 degrees.
+         svg.selectAll(".axis text")  // select all the text elements for the xaxis
+            .attr("transform", function(d) {
+                return "translate(" + this.getBBox().height*-1 + "," + this.getBBox().height*5.5 + ")rotate(-90)";
+          });
+
+          //Enter phase - create group for each tag
+          var tagGroup = tags.enter().append("g")
+            .attr("class","tag_group")
+            .attr("transform", function(d,i) {return "translate(0," + i*(rectHeight+gap) + ")";});
+
+          //Enter phase - create background rectangles
+          tagGroup.append("rect")
+            .attr("class","background-rect")
+            .attr("width",innerWidth)
+            .attr("height", rectHeight);
+
+          //Enter phase - create tag_id text
+          tagGroup.append("text")
+              .attr("x", (outerWidth-padding*1.2))
+              .attr("y", (gap*6))
+              .text(function(d) {return d.tag_id;});
+
+          //Enter phase - add lines from reads
+          var readLine = tagGroup.selectAll("line").data(function(d) {return d.reads;}).enter().append("line");
+          readLine.attr("class","time-line")
+            .attr("x1", function(d) {return xScale(d.timestamp);})
+            .attr("y1", 0)
+            .attr("x2", function(d) {return xScale(d.timestamp);})
+            .attr("y2", rectHeight)
+            .attr("stroke", function (d) {return colorScale(d.reader);})
+            .attr("stroke-width",lineWidth);
+        }
+
+        function type(data)
+        {
+          var results = [];
+          for (var i = 0; i<data.length; i++)
           {
-            tag = {
-              "tag_id": element.tag_id,
-              "reads" : []
+            var element = data[i];
+            element.timestamp = new Date(element.timestamp);
+            var index = contains(results, "tag_id", element.tag_id);
+            var tag;
+            if (index < 0)
+            {
+              tag = {
+                "tag_id": element.tag_id,
+                "reads" : []
+              }
+              results.push(tag);
             }
-            results.push(tag);
+            else
+            {
+              tag = results[index];
+            }
+            var read = {
+              "timestamp": element.timestamp,
+              "reader": element.reader
+            };
+            tag.reads.push(read);
           }
-          else
-          {
-            tag = results[index];
-          }
-
-          var read = {
-            "timestamp": element.timestamp,
-            "reader": element.reader
-          };
-
-          tag.reads.push(read);
-
+          return results;
         }
 
-        return results;
-      }
-
-      function contains(list, key, value)
-      {
-        for (var i = 0; i < list.length; i++)
+        function contains(list, key, value)
         {
-          if (list[i][key] === value)
-            return i;
+          for (var i = 0; i < list.length; i++)
+          {
+            if (list[i][key] === value)
+              return i;
+          }
+          return -1;
         }
-        return -1;
-      }
 
-      d3.json("/sample_data.json", render);
+        d3.json("/sample_data.json", render);
 
     </script>
-  </body>
+
+    </body>
 </html>
