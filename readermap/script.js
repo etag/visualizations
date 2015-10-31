@@ -1,8 +1,9 @@
 //Configuration
 var page_size = 500;
 
-//Setup map
+//Setup
 var colorScale = d3.scale.category10();
+//Setup map
 var map = L.map('map');
 L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
     attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
@@ -11,6 +12,7 @@ L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={
     accessToken: 'pk.eyJ1IjoibmJncmFoYW0iLCJhIjoiY2lnZHJqZ2ZlMnJ0Z3VvbTg4dmxwaG4zciJ9.LWk1arFBGSCkIqmASMSPlw'
 }).addTo(map);
 
+/*
 var popup = L.popup();
 function onMapClick(e) {
     popup
@@ -19,6 +21,7 @@ function onMapClick(e) {
         .openOn(map);
 }
 map.on('click', onMapClick);
+*/
 
 var combo = d3.select("body").append("select").attr("id","combo");
 //Load tags into combo box
@@ -28,8 +31,6 @@ d3.json("http://head.ouetag.org/api/etag/tags/.json", function(error, tags) {
     combo.append("option").attr("value",tag.url).text(tag.tag_id);
   });
 });
-
-var readerInfoArea = d3.select("body").append("div");
 
 d3.json("http://head.ouetag.org/api/etag/reader_location/.json", function(error, readersInfo) {
 
@@ -45,7 +46,7 @@ d3.json("http://head.ouetag.org/api/etag/reader_location/.json", function(error,
           //Read in selected tag reads
           d3.json("http://head.ouetag.org/api/etag/tag_reads/.json?page_size=" + page_size + "&tag="+this.options[this.selectedIndex].text, function(error, reads) {
             if (error) throw error;
-            update(reads, readersInfo);
+            zoomIntoTags(reads, readersInfo);
           });
         }
       });
@@ -75,7 +76,7 @@ function drawReaders(readersInfo)
   drawOnMap(locations);
 }
 
-function update(reads, readersInfo)
+function zoomIntoTags(reads, readersInfo)
 {
   var locations = {
     "type": "FeatureCollection",
@@ -86,7 +87,10 @@ function update(reads, readersInfo)
   var elementTime;
   var index;
 
-    if (reads.results.length === 0) alert("Tag " + reads.tag + " has no reads!");
+    if (reads.results.length === 0) {
+      alert("Tag " + reads.tag + " has no reads!");
+      return;
+    }
     for (var i = 0; i < reads.results.length; i++)
     {
         element = reads.results[i];
@@ -116,7 +120,6 @@ function update(reads, readersInfo)
             },
             "properties": {
               "name": element.reader,
-              "reads" : [],
               "start_timestamp": readerCorrect.start_timestamp,
               "end_timestamp": readerCorrect.end_timestamp,
               "popupContent": ""
@@ -128,14 +131,6 @@ function update(reads, readersInfo)
         {
           reader = locations.features[index];
         }
-
-        var read = {
-          "timestamp": element.tag_timestamp,
-          "tag_id": element.tag
-        };
-
-        reader.properties.reads.push(read);
-        reader.properties.popupContent += "<br>" + read;
     }
 
     //zoom into area
@@ -165,34 +160,39 @@ var arrayUnique = function(a) {
 };
 
 function geojsonMarkerOptions(feature) {
-  var color = colorScale(feature.properties.name);
   return {
     radius: 8,
-    fillColor: color,
+    fillColor: colorScale(feature.properties.name),
     color: "#000",
     weight: 1,
     opacity: 1,
     fillOpacity: 0.8
 }};
 
+function showTimeseries(e) {
+  $("#timeseries").empty();
+  drawReaderTimes("http://head.ouetag.org/api/etag/tag_reads/.json?reader=" + this.feature.properties.name + "&page_size=100", "#timeseries", 500, 100);
+}
+function onEachFeature(feature, layer) {
+
+  if (feature.properties && feature.properties.popupContent) {
+      layer.bindPopup(feature.properties.popupContent);
+  }
+
+  layer.on('dblclick', showTimeseries);
+  //layer.on('mouseover', function(e){this.openPopup();});
+}
+
 function drawOnMap(locations)
 {
   colorScale.domain(d3.extent(locations, function(d) {return d.properties.name;}));
-
-  function onEachFeature(feature, layer) {
-    if (feature.properties && feature.properties.popupContent) {
-        layer.bindPopup(feature.properties.popupContent);
-    }
-  }
 
   var featureLayer = L.geoJson(locations, {
       pointToLayer: function (feature, latlng) {
           return L.circleMarker(latlng, geojsonMarkerOptions(feature));
       },
       onEachFeature: onEachFeature,
-      filter: function(feature, layer) {
-        return feature.properties.end_timestamp == null;
-      }
+      onClick: showTimeseries
   }).addTo(map);
 
   map.fitBounds(featureLayer.getBounds());

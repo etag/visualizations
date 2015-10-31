@@ -6,7 +6,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/1.6.19/topojson.min.js"></script>
     <script src="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <script src="/date.js"></script>
+    <script src="drawTimeseries.js"></script>
     <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.css" />
     <style>
     .state
@@ -24,13 +26,14 @@
     }
     #map
     {
-      height: 600px;
-      width: 960px;
+      height: 300px;
+      width: 500px;
     }
     </style>
   </head>
   <body>
     <div id="map"></div>
+    <div id="timeseries"><div>
     <script src="script.js"></script>
   </body>
 </html>
