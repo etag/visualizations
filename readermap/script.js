@@ -1,30 +1,27 @@
 //Configuration
-var radius = 5;
-var width = 600;
 var page_size = 500;
 
-//Set up
-var height = width * 500 / 960;
-var svg = d3.select("body").append("svg")
-    .attr("width", width)
-    .attr("height", height);
-var colorScale = d3.scale.category20b();
-var projection = d3.geo.albers()
-  .scale(1)
-  .translate([0, 0]);
-var path = d3.geo.path()
-  .projection(projection)
-  .pointRadius(radius);
+//Setup map
+var colorScale = d3.scale.category10();
+var map = L.map('map');
+L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
+    attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
+    maxZoom: 18,
+    id: 'nbgraham.cigdrjent2rnuuwkrohxh07a7',
+    accessToken: 'pk.eyJ1IjoibmJncmFoYW0iLCJhIjoiY2lnZHJqZ2ZlMnJ0Z3VvbTg4dmxwaG4zciJ9.LWk1arFBGSCkIqmASMSPlw'
+}).addTo(map);
+
+var popup = L.popup();
+function onMapClick(e) {
+    popup
+        .setLatLng(e.latlng)
+        .setContent("You clicked the map at " + e.latlng.toString())
+        .openOn(map);
+}
+map.on('click', onMapClick);
 
 var combo = d3.select("body").append("select").attr("id","combo");
-var readerInfoArea = d3.select("body").append("div");
-
-var slider = d3.select("body").append("input")
-  .attr("type", "range")
-  .attr("max", 100)
-  .attr("min", 0.1)
-  .attr("value", 10);
-
+//Load tags into combo box
 d3.json("http://head.ouetag.org/api/etag/tags/.json", function(error, tags) {
   combo.append("option").attr("value","Show all readers").text("Show all readers").attr("selected", true);
   tags.results.forEach(function(tag) {
@@ -32,43 +29,30 @@ d3.json("http://head.ouetag.org/api/etag/tags/.json", function(error, tags) {
   });
 });
 
-//Read in states, rivers, and lakes for map
-d3.json("/readermap/GeoJSON/usa.json", function(error, usa) {
-  if(error) throw error;
+var readerInfoArea = d3.select("body").append("div");
 
-  d3.json("http://head.ouetag.org/api/etag/reader_location/.json", function(error, readersInfo) {
+d3.json("http://head.ouetag.org/api/etag/reader_location/.json", function(error, readersInfo) {
 
-      //Setup
-      states = topojson.feature(usa, usa.objects.sts).features;
-      rivers = topojson.feature(usa, usa.objects.rivers).features;
-      lakes = topojson.feature(usa, usa.objects.lakes).features;
-      colorScale.domain([0,states.length]);
-
-      drawReaders(readersInfo, 10);
+      drawReaders(readersInfo);
 
       combo.on("change", function() {
         if (this.options[this.selectedIndex].text === "Show all readers")
         {
+          //Show all readers
           drawReaders(readersInfo);
         }
         else {
-          //Read in tag reads
+          //Read in selected tag reads
           d3.json("http://head.ouetag.org/api/etag/tag_reads/.json?page_size=" + page_size + "&tag="+this.options[this.selectedIndex].text, function(error, reads) {
             if (error) throw error;
             update(reads, readersInfo);
           });
         }
       });
-
-      slider.on("input", function(){
-        drawPoints(0);
-      });
     });
-  });
 
 function drawReaders(readersInfo)
 {
-
   var locations = {
     "type": "FeatureCollection",
     "features": []
@@ -81,11 +65,14 @@ function drawReaders(readersInfo)
         "type": "Point",
         "coordinates": [reader.longitude, reader.latitude]
       },
-      "properties": reader
+      "properties": {
+        "name": reader.reader,
+        "popupContent": "<b>" + reader.reader + "</b><br>" + new Date(reader.start_timestamp).toString('MMM d, yyyy') + " - " + (reader.end_timestamp == null ? "Present" : new Date(reader.end_timestamp).toString('MMM d, yyyy'))
+      }
     });
   });
 
-  drawPoints(locations);
+  drawOnMap(locations);
 }
 
 function update(reads, readersInfo)
@@ -131,7 +118,8 @@ function update(reads, readersInfo)
               "name": element.reader,
               "reads" : [],
               "start_timestamp": readerCorrect.start_timestamp,
-              "end_timestamp": readerCorrect.end_timestamp
+              "end_timestamp": readerCorrect.end_timestamp,
+              "popupContent": ""
             }
           };
           locations.features.push(reader);
@@ -147,9 +135,12 @@ function update(reads, readersInfo)
         };
 
         reader.properties.reads.push(read);
+        reader.properties.popupContent += "<br>" + read;
     }
 
-    drawPoints(locations);
+    //zoom into area
+    var featureLayer = L.geoJson(locations);
+    map.fitBounds(featureLayer.getBounds());
 }
 
 function searchForReader(readers,element)
@@ -173,118 +164,36 @@ var arrayUnique = function(a) {
     }, []);
 };
 
-function drawPoints(locations)
+function geojsonMarkerOptions(feature) {
+  var color = colorScale(feature.properties.name);
+  return {
+    radius: 8,
+    fillColor: color,
+    color: "#000",
+    weight: 1,
+    opacity: 1,
+    fillOpacity: 0.8
+}};
+
+function drawOnMap(locations)
 {
-  console.log(svg.selectAll(".reader-location").data())
-  if (locations == 0)
-  {
-    var locations = {
-      "type": "FeatureCollection",
-      "features": svg.selectAll(".reader-location").data()
-    };
+  colorScale.domain(d3.extent(locations, function(d) {return d.properties.name;}));
+
+  function onEachFeature(feature, layer) {
+    if (feature.properties && feature.properties.popupContent) {
+        layer.bindPopup(feature.properties.popupContent);
+    }
   }
-  if (locations.features.length > 0)
-  {
-    //Zoom in to the correct area of the map
-    projection
-      .scale(1)
-      .translate([0, 0]);
-    var b = path.bounds(locations);
 
-    var zoom = +slider[0][0].value;
-    var currRadius = radius * 10 / (zoom+5);
-    zoom = zoom*zoom;
+  var featureLayer = L.geoJson(locations, {
+      pointToLayer: function (feature, latlng) {
+          return L.circleMarker(latlng, geojsonMarkerOptions(feature));
+      },
+      onEachFeature: onEachFeature,
+      filter: function(feature, layer) {
+        return feature.properties.end_timestamp == null;
+      }
+  }).addTo(map);
 
-    b[0][0] *= 1 - (zoom/1000);
-    b[0][1] *= 1 - (zoom/1000);
-
-    b[1][0] *= 1 + (zoom/1000);
-    b[1][1] *= 1 + (zoom/1000);
-
-    var s = 0.95 / Math.max((b[1][0] - b[0][0]) / width, (b[1][1] - b[0][1]) / height);
-    var t = [(width - s * (b[1][0] + b[0][0])) / 2, (height - s * (b[1][1] + b[0][1])) / 2];
-    projection
-      .scale(s)
-      .translate(t);
-
-    //Bind data
-    var statesSvg = svg.selectAll(".state").data(states);
-    var riversSvg = svg.selectAll(".river").data(rivers);
-    var lakesSvg = svg.selectAll(".lake").data(lakes);
-    var readersSvg = svg.selectAll(".reader-location").data(locations.features);
-
-    //Update
-    statesSvg.classed("updated", true);
-    riversSvg.classed("updated", true);
-    lakesSvg.classed("updated", true);
-    readersSvg.classed("updated", true);
-
-    //Enter
-    statesSvg.enter()
-      .append("path")
-      .attr("class", "state")
-      .attr("id", function(d) {return d.id;})
-      .attr("fill", function(d,i) {return colorScale(((i*i)/3+7)%50);});
-
-    riversSvg.enter()
-      .append("path")
-      .attr("class", "river")
-      .attr("id", function(d) { return d.properties.name;});
-
-    lakesSvg.enter()
-      .append("path")
-      .attr("class", "lake")
-      .attr("id", function(d) { return d.properties.name;});
-
-    readersSvg.enter()
-      .append("circle")
-      .on("click", function(d) {
-        var tags = [];
-        var data = [];
-        d3.json("http://head.ouetag.org/api/etag/tag_reads/.json?page_size=" + page_size + "&reader=" + d.properties.reader, function(readerInfo){
-
-          readerInfo.results.forEach(function(tag) {
-            tags.push(tag.tag);
-          });
-          data = arrayUnique(tags);
-
-          var tagList = readerInfoArea.selectAll("p").data(data);
-          tagList.enter()
-            .append("p").text(function(d) {return d;});
-
-          tagList.exit().remove();
-        });
-      })
-      .attr("class", "reader-location")
-      .append("svg:title");
-
-
-    //Enter + Update
-    statesSvg.attr("d", path);
-    riversSvg.attr("d", path);
-    lakesSvg.attr("d", path);
-    readersSvg.attr("r", currRadius)
-      .attr("transform", function(d) { return "translate(" + projection(d.geometry.coordinates) + ")"; })
-      .select("title")
-      .text(function (d) {
-        console.log(combo[0][0].value);
-        if (combo[0][0].value === "Show all readers")
-        {
-          return "Reader: " + d.properties.reader + "\n";
-        }
-        else {
-          var result = "Reader: " + d.properties.name + "\n";
-          for (var i = 0; i < d.properties.reads.length; i++)
-          {
-            result += "Tag ID: " + d.properties.reads[i].tag_id + " Time: " + new Date(d.properties.reads[i].timestamp) + "\n";
-          }
-          return result;
-        }});
-
-    //Exit
-    statesSvg.exit().remove();
-    riversSvg.exit().remove();
-    lakesSvg.exit().remove();
-    readersSvg.exit().remove();
-  }
+  map.fitBounds(featureLayer.getBounds());
 }

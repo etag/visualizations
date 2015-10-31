@@ -5,6 +5,9 @@
     <title>Reads map</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/1.6.19/topojson.min.js"></script>
+    <script src="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.js"></script>
+    <script src="/date.js"></script>
+    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.css" />
     <style>
     .state
     {
@@ -19,9 +22,15 @@
     {
       fill: lightblue;
     }
+    #map
+    {
+      height: 600px;
+      width: 960px;
+    }
     </style>
   </head>
   <body>
+    <div id="map"></div>
     <script src="script.js"></script>
   </body>
 </html>
