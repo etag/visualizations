@@ -3,31 +3,23 @@
   <head>
     <meta charset="utf-8">
     <title>Reads map</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/1.6.19/topojson.min.js"></script>
-    <script src="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-    <script src="/date.js"></script>
+    <script src="bower_components/d3/d3.min.js"></script>
+    <script src="bower_components/leaflet/dist/leaflet.js"></script>
+    <script src="bower_components/jquery/dist/jquery.min.js"></script>
     <script src="drawTimeseries.js"></script>
-    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.css" />
+
+    <link rel="stylesheet" href="bower_components/leaflet/dist/leaflet.css" />
     <style>
-    .state
-    {
-      stroke: black;
-    }
-    .river
-    {
-      stroke: lightblue;
-      fill: none;
-    }
-    .lake
-    {
-      fill: lightblue;
-    }
     #map
     {
       height: 300px;
       width: 500px;
+    }
+    .axis path,
+    .axis line {
+      fill: none;
+      stroke: black;
+      shape-rendering: crispEdges;
     }
     </style>
   </head>
