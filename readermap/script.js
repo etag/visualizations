@@ -1,6 +1,9 @@
 //Configuration
 var page_size = 500;
 
+var mapBoxId = 'nbgraham.cigdrjent2rnuuwkrohxh07a7';
+var mapBoxAccessToken = 'pk.eyJ1IjoibmJncmFoYW0iLCJhIjoiY2lnZHJqZ2ZlMnJ0Z3VvbTg4dmxwaG4zciJ9.LWk1arFBGSCkIqmASMSPlw';
+
 //Setup
 var colorScale = d3.scale.category10();
 //Setup map
@@ -8,20 +11,9 @@ var map = L.map('map');
 L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
     attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
     maxZoom: 18,
-    id: 'nbgraham.cigdrjent2rnuuwkrohxh07a7',
-    accessToken: 'pk.eyJ1IjoibmJncmFoYW0iLCJhIjoiY2lnZHJqZ2ZlMnJ0Z3VvbTg4dmxwaG4zciJ9.LWk1arFBGSCkIqmASMSPlw'
+    id: mapBoxId,
+    accessToken: mapBoxAccessToken
 }).addTo(map);
-
-/*
-var popup = L.popup();
-function onMapClick(e) {
-    popup
-        .setLatLng(e.latlng)
-        .setContent("You clicked the map at " + e.latlng.toString())
-        .openOn(map);
-}
-map.on('click', onMapClick);
-*/
 
 var combo = d3.select("body").append("select").attr("id","combo");
 //Load tags into combo box
@@ -44,7 +36,8 @@ d3.json("http://head.ouetag.org/api/etag/reader_location/.json", function(error,
         }
         else {
           //Read in selected tag reads
-          d3.json("http://head.ouetag.org/api/etag/tag_reads/.json?page_size=" + page_size + "&tag="+this.options[this.selectedIndex].text, function(error, reads) {
+          var url = "http://head.ouetag.org/api/etag/tag_reads/.json?page_size=" + page_size + "&tag="+this.options[this.selectedIndex].text;
+          d3.json(url, function(error, reads) {
             if (error) throw error;
             zoomIntoTags(reads, readersInfo);
           });
@@ -68,7 +61,7 @@ function drawReaders(readersInfo)
       },
       "properties": {
         "name": reader.reader,
-        "popupContent": "<b>" + reader.reader + "</b><br>" + new Date(reader.start_timestamp).toString('MMM d, yyyy') + " - " + (reader.end_timestamp == null ? "Present" : new Date(reader.end_timestamp).toString('MMM d, yyyy'))
+        "popupContent": "<b>" + reader.reader + "</b><br>" + new Date(reader.start_timestamp).toDateString() + " - " + (reader.end_timestamp == null ? "Present" : new Date(reader.end_timestamp).toDateString())
       }
     });
   });
