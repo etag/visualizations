@@ -28,7 +28,7 @@ d3.json("http://head.ouetag.org/api/etag/reader_location/.json", function(error,
 
       drawReaders(readersInfo);
 
-      combo.on("change", function() {
+      $("#combo").on('change', function() {
         if (this.options[this.selectedIndex].text === "Show all readers")
         {
           //Show all readers
@@ -40,6 +40,8 @@ d3.json("http://head.ouetag.org/api/etag/reader_location/.json", function(error,
           d3.json(url, function(error, reads) {
             if (error) throw error;
             zoomIntoTags(reads, readersInfo);
+            $("#timeseries").empty();
+            drawTagTimes(url, "#timeseries", 500, 300);
           });
         }
       });
@@ -164,8 +166,9 @@ function geojsonMarkerOptions(feature) {
 
 function showTimeseries(e) {
   $("#timeseries").empty();
-  drawReaderTimes("http://head.ouetag.org/api/etag/tag_reads/.json?reader=" + this.feature.properties.name + "&page_size=100", "#timeseries", 500, 100);
+  drawReaderTimes("http://head.ouetag.org/api/etag/tag_reads/.json?reader=" + this.feature.properties.name + "&page_size=" + page_size, "#timeseries", 500, 200);
 }
+
 function onEachFeature(feature, layer) {
 
   if (feature.properties && feature.properties.popupContent) {
@@ -173,7 +176,6 @@ function onEachFeature(feature, layer) {
   }
 
   layer.on('dblclick', showTimeseries);
-  //layer.on('mouseover', function(e){this.openPopup();});
 }
 
 function drawOnMap(locations)
