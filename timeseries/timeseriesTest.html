@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+    <head>
+      <meta charset="utf-8">
+      <title>Time series</title>
+      <script src="../readermap/bower_components/d3/d3.min.js"></script>
+      <script src="../readermap/drawTimeseries.js"></script>
+      <script src="timeseriesTest.js"></script>
+      <style>
+        .background {
+          visibility: hidden;
+        }
+
+        .extent {
+          visibility: visible !important;
+          fill: blue;
+          opacity: 0.25;
+        }
+
+        .resize rect {
+          visibility: hidden;
+        }
+    </style>
+  </head>
+  <body>
+    <script>
+      brush(300,50);
+    </script>
+  </body>
+</html>
