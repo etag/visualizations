@@ -5,13 +5,13 @@
       <title>Time series</title>
       <script src="../readermap/bower_components/d3/d3.min.js"></script>
       <script src="../readermap/bower_components/jquery/dist/jquery.min.js"></script>
-      <script src="../readermap/drawTimeseries.js"></script>
-      <script src="timeseriesTest.js"></script>
+      <script src="timeseries.js"></script>
       <link rel="stylesheet" href="timeseries.css" />
   </head>
   <body>
+    <div id="timeseries"></div>
     <script>
-      timeseries(500,150,"body","http://head.ouetag.org/api/etag/tag_reads/.json?reader=12007");
+      timeseries(500,150,"#timeseries","http://head.ouetag.org/api/etag/tag_reads/.json?page_size=500", "reader");
     </script>
   </body>
 </html>
