@@ -1,21 +1,27 @@
-var lineWidth = 2;
+var lineWidth;
 
-var colorScale = d3.scale.category10();
-var focusXScale = d3.time.scale();
-var contextXScale = d3.time.scale();
+var colorScale, focusXScale, contextXScale;
 
-var contextXAxis = d3.svg.axis().scale(contextXScale).orient("bottom"),
-  focusXAxis = d3.svg.axis().scale(focusXScale).orient("bottom");
+var contextXAxis, focusXAxis;
 
 var focusHeight, contextHeight, gap;
 
-function brush(width, height, selector, url)
+function timeseries(width, height, selector, url)
 {
+  lineWidth = 2;
+
+  colorScale = d3.scale.category10();
+  focusXScale = d3.time.scale();
+  contextXScale = d3.time.scale();
+
+  contextXAxis = d3.svg.axis().scale(contextXScale).orient("bottom");
+  focusXAxis = d3.svg.axis().scale(focusXScale).orient("bottom");
+
   focusHeight = height*.5;
   gap = height*.2;
   contextHeight = height*.15;
 
-  var svg = d3.select(selector).append("svg").attr("height", height).attr("width", width);
+  var svg = d3.select(selector).append("svg").attr("height", height).attr("width", width).attr("id","timeseries_svg");
   var focusG = svg.append("g").attr("id", "focusG");
   focusG.append("rect")
     .attr("class","background-rect")
@@ -55,56 +61,58 @@ function drawReaderTimes(url, contextG, focusG, width, height)
     focusG.append("g").attr("class","focus axis").attr("transform","translate(0," + focusHeight + ")").call(focusXAxis);
     contextG.append("g").attr("class","context axis").attr("transform","translate(0," + contextHeight + ")").call(contextXAxis);
 
-    var tags = contextG.selectAll("g .tag").data(tagsList);
-    //Enter
-    tags.enter().append("g")
-      .attr("class", "tag")
-      .attr("id",function(d) {return d[0].tag;});
-    //Enter and Update
-    var readLines = tags.selectAll("line")
-      .data(function(d) {return d;});
-    //Exit
-    tags.exit().remove();
-
-    //Enter
-    readLines.enter().append("line")
-      .attr("class","time-line")
-      .attr("x1", function(d) {return contextXScale(d.tag_timestamp);})
-      .attr("y1", 0)
-      .attr("x2", function(d) {return contextXScale(d.tag_timestamp);})
-      .attr("y2", height)
-      .attr("stroke", function (d) {return colorScale(d.tag);})
-      .attr("stroke-width", lineWidth)
-    //Exit
-    readLines.exit().remove();
-
-    var slider = contextG.append("g")
-      .attr("id","timesrs_slider");
+    drawLines(contextG, tagsList, contextXScale, height);
 
     var brush = d3.svg.brush()
         .x(contextXScale)
-        .on("brush", function() {
-            drawReaderTimesRange(data, focusG, width, focusHeight, brush);
-            d3.select(".focus.axis").call(focusXAxis);
-        });
 
+    var slider = contextG.append("g")
+        .attr("id","timesrs_slider");
     brush(slider);
-
     slider.selectAll("rect")
       .attr("height", height);
 
-    drawReaderTimesRange(data, focusG, width, focusHeight, brush);
+    brush.on("brush", brushed);
+    brushed();
+
+    function brushed()
+    {
+        drawReaderTimesRange(tagsList, focusG, width, focusHeight, brush);
+        d3.select(".focus.axis").call(focusXAxis);
+    }
   });
 }
 
-function drawReaderTimesRange(data, focusG, width, height, brush)
+function drawLines(group, data, scale, height)
+{
+  var tags = group.selectAll("g .tag").data(data);
+  //Enter
+  tags.enter().append("g")
+    .attr("class", "tag")
+    .attr("id",function(d) {return d[0].tag;});
+  //Enter and Update
+  var readLines = tags.selectAll("line")
+    .data(function(d) {return d;});
+  //Exit
+  tags.exit().remove();
+
+  //Enter
+  readLines.enter().append("line")
+    .attr("class","time-line")
+    .attr("x1", function(d) {return scale(d.tag_timestamp);})
+    .attr("y1", 0)
+    .attr("x2", function(d) {return scale(d.tag_timestamp);})
+    .attr("y2", height)
+    .attr("stroke", function (d) {return colorScale(d.tag);})
+    .attr("stroke-width", lineWidth)
+  //Exit
+  readLines.exit().remove();
+}
+
+function drawReaderTimesRange(tagsList, focusG, width, height, brush)
 {
     if (brush.empty()) focusXScale.domain(contextXScale.domain());
     else focusXScale.domain(brush.extent());
-
-    tagsList = groupByTagRange(data.results, focusXScale.domain());
-
-    console.log(focusXScale.domain());
 
     var tags = focusG.selectAll("g .tag").data(tagsList);
     //Enter
@@ -132,36 +140,4 @@ function drawReaderTimesRange(data, focusG, width, height, brush)
       .attr("x2", function(d) {return focusXScale(d.tag_timestamp);});
     //Exit
     readLines.exit().remove();
-}
-
-function groupByTagRange(data, range)
-{
-  var results = [];
-  for (var i = 0; i<data.length; i++)
-  {
-    var element = data[i];
-    element.tag_timestamp = new Date(element.tag_timestamp);
-
-    //Account for range
-    if (element.tag_timestamp < range[0]) continue;
-    else if (element.tag_timestamp > range[1]) break;
-
-    var index = -1;
-    results.forEach(function(tagList, i) {
-      if (tagList[0].tag == element.tag){
-        index = i;
-      }
-    });
-    var tag = [];
-    if (index < 0)
-    {
-      results.push(tag);
-    }
-    else
-    {
-      tag = results[index];
-    }
-    tag.push(element);
-  }
-  return results;
 }
