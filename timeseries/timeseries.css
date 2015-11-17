@@ -1,0 +1,26 @@
+#timeseries_svg {
+  font: 10px sans-serif;
+}
+
+.extent {
+  visibility: visible !important;
+  fill: blue;
+  opacity: 0.25;
+}
+
+.resize rect {
+  visibility: hidden;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.brush .extent {
+  stroke: #fff;
+  fill-opacity: .125;
+  shape-rendering: crispEdges;
+}

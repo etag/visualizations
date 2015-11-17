@@ -7,41 +7,11 @@
       <script src="../readermap/bower_components/jquery/dist/jquery.min.js"></script>
       <script src="../readermap/drawTimeseries.js"></script>
       <script src="timeseriesTest.js"></script>
-      <style>
-        svg {
-          font: 10px sans-serif;
-        }
-        .background {
-          visibility: hidden;
-        }
-
-        .extent {
-          visibility: visible !important;
-          fill: blue;
-          opacity: 0.25;
-        }
-
-        .resize rect {
-          visibility: hidden;
-        }
-
-        .axis path,
-        .axis line {
-          fill: none;
-          stroke: #000;
-          shape-rendering: crispEdges;
-        }
-
-        .brush .extent {
-          stroke: #fff;
-          fill-opacity: .125;
-          shape-rendering: crispEdges;
-        }
-    </style>
+      <link rel="stylesheet" href="timeseries.css" />
   </head>
   <body>
     <script>
-      brush(500,150,"body","http://head.ouetag.org/api/etag/tag_reads/.json?reader=12001&page_size=100");
+      brush(500,150,"body","http://head.ouetag.org/api/etag/tag_reads/.json?reader=12007");
     </script>
   </body>
 </html>
