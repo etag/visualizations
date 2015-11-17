@@ -1,36 +1,41 @@
 var lineWidth = 2;
+
 var colorScale = d3.scale.category10();
-var focusXScale = d3.time.scale.utc();
-var contextXScale = d3.time.scale.utc();
+var focusXScale = d3.time.scale();
+var contextXScale = d3.time.scale();
 
-function brush(width, height)
+var contextXAxis = d3.svg.axis().scale(contextXScale).orient("bottom"),
+  focusXAxis = d3.svg.axis().scale(focusXScale).orient("bottom");
+
+var focusHeight, contextHeight, gap;
+
+function brush(width, height, selector, url)
 {
-  var contextSvg = d3.select("#context").append("svg")
-    .attr("width", width)
-    .attr("height", height*.75);
-  contextSvg.append("rect")
-    .attr("class","background-rect")
-    .attr("width",width)
-    .attr("height", height*.25)
-    .attr("fill", "#EAEAD5");
-  contextXScale.range([0, width]);
+  focusHeight = height*.5;
+  gap = height*.2;
+  contextHeight = height*.15;
 
-  var focusSvg = d3.select("#focus").append("svg")
-    .attr("width", width)
-    .attr("height", height);
-  contextSvg.append("rect")
+  var svg = d3.select(selector).append("svg").attr("height", height).attr("width", width);
+  var focusG = svg.append("g").attr("id", "focusG");
+  focusG.append("rect")
     .attr("class","background-rect")
-    .attr("width",width)
-    .attr("height", height)
+    .attr("width", width)
+    .attr("height", focusHeight)
     .attr("fill", "#EAEAD5");
   focusXScale.range([0, width]);
 
+  var contextG = svg.append("g").attr("id", "contextG").attr("transform", "translate(0, " + (focusHeight + gap) + ")");
+  contextG.append("rect")
+    .attr("class","background-rect")
+    .attr("width",width)
+    .attr("height", contextHeight)
+    .attr("fill", "#EAEAD5");
+  contextXScale.range([0, width]);
 
-  var url = "http://head.ouetag.org/api/etag/tag_reads/.json?reader=12007";
-  drawReaderTimes(url, focusSvg, contextSvg, width, height*.25);
+  drawReaderTimes(url, contextG, focusG, width, contextHeight);
 }
 
-function drawReaderTimes(url, svg, contextSvg, width, height)
+function drawReaderTimes(url, contextG, focusG, width, height)
 {
   d3.json(url, function(data) {
     //Get data in right form
@@ -39,60 +44,21 @@ function drawReaderTimes(url, svg, contextSvg, width, height)
     colorScale.domain(d3.extent(tagsList, function(d, i) {return i}));
     var xMin = d3.min(tagsList, function(d) {return d3.min(d,function(e) {return e.tag_timestamp;});});
     var xMax = d3.max(tagsList, function(d) {return d3.max(d,function(e) {return e.tag_timestamp;});});
-    focusXScale.domain([xMin,xMax]);
 
-    svg.append("rect")
-      .attr("class","background-rect")
-      .attr("width",width)
-      .attr("height", height)
-      .attr("fill", "#EAEAD5");
-    svg.append("text")
-        .attr("transform","translate(" + (width) + "," + height/2 + ")rotate(90)")
-        .attr("text-anchor","middle")
-        .text(tagsList[0][0].reader);
+    var diff = xMax.getTime() - xMin.getTime();
+    xMin.setTime(xMin.getTime() - diff*0.05);
+    xMax.setTime(xMax.getTime() + diff*0.05);
 
-    tagsList.forEach(function(tagReads) {
-      //Enter phase - add lines from reads
-      var readLines = svg.append("g").attr("id",tagReads[0].tag).selectAll("line").data(tagReads);
-      readLines.enter().append("line")
-        .attr("class","time-line")
-        .attr("x1", function(d) {return focusXScale(d.tag_timestamp);})
-        .attr("y1", 0)
-        .attr("x2", function(d) {return focusXScale(d.tag_timestamp);})
-        .attr("y2", height)
-        .attr("stroke", function (d) {return colorScale(d.tag);})
-        .attr("stroke-width", lineWidth)
-    });
+    contextXScale.domain([xMin,xMax]);
+    focusXScale.domain(contextXScale.domain());
 
-    var slider = svg.append("g")
-      .attr("id","timesrs");
+    focusG.append("g").attr("class","focus axis").attr("transform","translate(0," + focusHeight + ")").call(focusXAxis);
+    contextG.append("g").attr("class","context axis").attr("transform","translate(0," + contextHeight + ")").call(contextXAxis);
 
-    var brush = d3.svg.brush()
-        .x(focusXScale)
-        .on("brush", function() {
-            drawReaderTimesRange(url, contextSvg, width, height*3, brush);
-        });
-
-    brush(slider);
-
-    slider.selectAll("rect")
-      .attr("height", height);
-
-    drawReaderTimesRange(url, contextSvg, width, height*3, brush);
-  });
-}
-
-function drawReaderTimesRange(url, svg, width, height, brush)
-{
-  d3.json(url, function(data) {
-    if (brush.empty()) contextXScale.domain(focusXScale.domain());
-    else contextXScale.domain(brush.extent());
-
-    tagsList = groupByTagRange(data.results, contextXScale.domain());
-
-    var tags = svg.selectAll("g").data(tagsList);
+    var tags = contextG.selectAll("g .tag").data(tagsList);
     //Enter
     tags.enter().append("g")
+      .attr("class", "tag")
       .attr("id",function(d) {return d[0].tag;});
     //Enter and Update
     var readLines = tags.selectAll("line")
@@ -111,7 +77,61 @@ function drawReaderTimesRange(url, svg, width, height, brush)
       .attr("stroke-width", lineWidth)
     //Exit
     readLines.exit().remove();
+
+    var slider = contextG.append("g")
+      .attr("id","timesrs_slider");
+
+    var brush = d3.svg.brush()
+        .x(contextXScale)
+        .on("brush", function() {
+            drawReaderTimesRange(data, focusG, width, focusHeight, brush);
+            d3.select(".focus.axis").call(focusXAxis);
+        });
+
+    brush(slider);
+
+    slider.selectAll("rect")
+      .attr("height", height);
+
+    drawReaderTimesRange(data, focusG, width, focusHeight, brush);
   });
+}
+
+function drawReaderTimesRange(data, focusG, width, height, brush)
+{
+    if (brush.empty()) focusXScale.domain(contextXScale.domain());
+    else focusXScale.domain(brush.extent());
+
+    tagsList = groupByTagRange(data.results, focusXScale.domain());
+
+    console.log(focusXScale.domain());
+
+    var tags = focusG.selectAll("g .tag").data(tagsList);
+    //Enter
+    tags.enter().append("g")
+      .attr("class", "tag")
+      .attr("id",function(d) {return d[0].tag;});
+    //Enter and Update
+    var readLines = tags.selectAll("line")
+      .data(function(d) {return d;});
+    //Exit
+    tags.exit().remove();
+
+    //Enter
+    readLines.enter().append("line")
+      .attr("class","time-line")
+      .attr("y1", 0)
+      .attr("y2", height)
+      .attr("stroke", function (d) {return colorScale(d.tag);})
+      .attr("stroke-width", lineWidth)
+      .append("svg:title")
+      .text(function(d) { return d.tag; });
+    //Enter+Update
+    readLines
+      .attr("x1", function(d) {return focusXScale(d.tag_timestamp);})
+      .attr("x2", function(d) {return focusXScale(d.tag_timestamp);});
+    //Exit
+    readLines.exit().remove();
 }
 
 function groupByTagRange(data, range)

@@ -8,6 +8,9 @@
       <script src="../readermap/drawTimeseries.js"></script>
       <script src="timeseriesTest.js"></script>
       <style>
+        svg {
+          font: 10px sans-serif;
+        }
         .background {
           visibility: hidden;
         }
@@ -21,13 +24,24 @@
         .resize rect {
           visibility: hidden;
         }
+
+        .axis path,
+        .axis line {
+          fill: none;
+          stroke: #000;
+          shape-rendering: crispEdges;
+        }
+
+        .brush .extent {
+          stroke: #fff;
+          fill-opacity: .125;
+          shape-rendering: crispEdges;
+        }
     </style>
   </head>
   <body>
-    <div id="context"></div>
-    <div id="focus"></div>
     <script>
-      brush(350,150);
+      brush(500,150,"body","http://head.ouetag.org/api/etag/tag_reads/.json?reader=12001&page_size=100");
     </script>
   </body>
 </html>
