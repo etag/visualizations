@@ -1,5 +1,10 @@
-#timeseries_svg {
+.axis {
   font: 10px sans-serif;
+}
+
+#focusText {
+  font: 30px sans-serif;
+  opacity: 0.5;
 }
 
 .extent {
@@ -23,4 +28,8 @@
   stroke: #fff;
   fill-opacity: .125;
   shape-rendering: crispEdges;
+}
+
+.time-line.contextG {
+  opacity: 0.4;
 }
