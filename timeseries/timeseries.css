@@ -9,8 +9,10 @@
 
 .extent {
   visibility: visible !important;
-  fill: blue;
-  opacity: 0.25;
+  fill: red;
+  opacity: 0.5;
+  stroke: black;
+  stroke-width: 2;
 }
 
 .resize rect {
@@ -24,12 +26,6 @@
   shape-rendering: crispEdges;
 }
 
-.brush .extent {
-  stroke: #fff;
-  fill-opacity: .125;
-  shape-rendering: crispEdges;
-}
-
 .time-line.contextG {
-  opacity: 0.4;
+  opacity: 0.6;
 }
