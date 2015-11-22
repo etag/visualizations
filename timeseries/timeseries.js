@@ -107,6 +107,11 @@ function update(contextG, focusG, width, height)
     d3.select(".focus.axis").call(focusXAxis);
     d3.select(".context.axis").call(contextXAxis);
 
+    var formatDate = d3.time.format("%b %e, %Y");
+    var contextTimestampG = d3.select("#contextG").append("g").attr("class","contextTimestamp");
+    contextTimestampG.append("text").attr("id","startingTime").text(formatDate(xMin));
+    contextTimestampG.append("text").attr("id","endingTime").attr("text-anchor","end").attr("transform","translate(" + width + ",0)").text(formatDate(xMax));
+
     var brush = d3.svg.brush()
       .x(contextXScale)
       .on("brush", brushed);
