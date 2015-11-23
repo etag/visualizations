@@ -5,19 +5,56 @@ var focusHeight, contextHeight, gap;
 var width;
 var tagsList;
 
-function timeseries(width, height, selector, url, key)
+function timeseries(width, height, selector, data, tag, reader)
+{
+  if (tag !== "all") key = "reader";
+  else key = "tag";
+  
+  lineWidth = 2;
+  focusHeight = height*.5;
+  gap = height*.2;
+  contextHeight = height*.15;
+
+  setupPage(selector, key, height, width, tag, reader);
+
+  //Get data in right form
+  tagsList = groupByKey(data.results, d3.select("#buttonKey").text());
+  var brush = updateTimeseries(d3.select("#contextG"), d3.select("#focusG"), width, contextHeight);
+
+  function toggle()
+  {
+    if (d3.select("#buttonKey").text() === "tag") d3.select("#buttonKey").text("reader");
+    else if (d3.select("#buttonKey").text() === "reader") d3.select("#buttonKey").text("tag");
+
+    tagsList = groupByKey(data.results, d3.select("#buttonKey").text());
+    updateContext(brush);
+  }
+  d3.select("#buttonKey").on("click", toggle);
+}
+
+function timeseriesURL(width, height, selector, url, key)
 {
   lineWidth = 2;
   focusHeight = height*.5;
   gap = height*.2;
   contextHeight = height*.15;
 
-  setupPage(selector, key, height, width, url);
+  var tagRegEx = /tag=[A-z,0-9]{10}/;
+  var tag = url.search(tagRegEx);
+  if (tag >= 0) tag = url.substr(tag+4,10);
+  else tag = "";
+
+  var readerRegEx = /reader=[0-9]{5}/;
+  var reader = url.search(readerRegEx);
+  if (reader >= 0) reader = url.substr(reader+7,5);
+  else reader = "";
+
+  setupPage(selector, key, height, width, tag, reader);
 
   d3.json(url, function(data) {
     //Get data in right form
     tagsList = groupByKey(data.results, d3.select("#buttonKey").text());
-    var brush = update(d3.select("#contextG"), d3.select("#focusG"), width, contextHeight);
+    var brush = updateTimeseries(d3.select("#contextG"), d3.select("#focusG"), width, contextHeight);
 
     //needs access to data
     function toggle()
@@ -32,17 +69,9 @@ function timeseries(width, height, selector, url, key)
   });
 }
 
-function setupPage(selector, key, height, width, url)
+function setupPage(selector, key, height, width, tag, reader)
 {
-  var tagRE = /tag=[A-z,0-9]{10}/;
-  var tag = url.search(tagRE);
-  if (tag >= 0) tag = url.substr(tag+4,10);
-  else tag = "";
-
-  var readerRE = /reader=[0-9]{5}/;
-  var reader = url.search(readerRE);
-  if (reader >= 0) reader = url.substr(reader+7,5);
-  else reader = "";
+  $(selector).empty();
 
   var selectedElement = d3.select(selector);
 
@@ -94,7 +123,7 @@ function setupPage(selector, key, height, width, url)
   colorScale = d3.scale.category10();
 }
 
-function update(contextG, focusG, width, height)
+function updateTimeseries(contextG, focusG, width, height)
 {
     colorScale.domain(d3.extent(tagsList, function(d, i) {return i}));
     var xMin = d3.min(tagsList, function(d) {return d3.min(d,function(e) {return e.tag_timestamp;});});
