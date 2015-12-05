@@ -1,0 +1,20 @@
+.axis path,
+.axis line {
+  fill: none;
+  stroke: black;
+  shape-rendering: crispEdges;
+}
+
+#timerange_slider .background {
+  visibility: visible !important;
+  fill: gray;
+}
+#timerange_slider .extent {
+  visibility: visible !important;
+  fill: #3399ff;
+}
+
+#timerange_slider .resize rect {
+  visibility: visible !important;
+  fill: #ff6600;
+}

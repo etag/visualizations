@@ -1,17 +1,15 @@
 var myMap = {
   "map": "",
   "colorScale": "",
-  "page_size": "",
   "mapBoxId": 'nbgraham.cigdrjent2rnuuwkrohxh07a7',
   "mapBoxAccessToken": 'pk.eyJ1IjoibmJncmFoYW0iLCJhIjoiY2lnZHJqZ2ZlMnJ0Z3VvbTg4dmxwaG4zciJ9.LWk1arFBGSCkIqmASMSPlw'
 };
 
 var map;
 
-function createMap(page_size)
+function createMap()
 {
   //Setup
-  myMap.page_size = page_size;
   myMap.colorScale = d3.scale.category10();
   //Setup map
   map = L.map('map');

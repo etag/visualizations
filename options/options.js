@@ -1,13 +1,4 @@
-var readsPerReader = 500;
-var readsPerTag = 500;
-
-createMap(readsPerReader);
-var gettingReaderLocation = $.getJSON("http://head.ouetag.org/api/etag/reader_location/.json", function(readersInfo) {
-  drawReaders(readersInfo);
-});
-drawOptionSelectors("http://head.ouetag.org/api/etag", "#options", update);
-
-function drawOptionSelectors(apiUrl, selector, update)
+function options(apiUrl, selector, update)
 {
   var options = d3.select(selector).append("g").attr("id","optionG");
 
@@ -51,7 +42,7 @@ function drawOptionSelectors(apiUrl, selector, update)
   var sliderHeight = 20;
   var sliderWidth = 200;
 
-  var timeSlider = options.append("svg").attr("id","time_slider").attr("width",sliderWidth).attr("height",sliderHeight);
+  var timeSlider = options.append("svg").attr("id","timerange_slider").attr("width",sliderWidth).attr("height",sliderHeight);
   var brush = d3.svg.brush()
     .on("brush", brushed);
 
@@ -91,25 +82,4 @@ function drawOptionSelectors(apiUrl, selector, update)
     .on("click", function() {
       update(tagCombo.property("value"), readerCombo.property("value"), brush.extent());
     });
-}
-
-function update(selectedTag, selectedReader, selectedTime)
-{
-  var url = "http://head.ouetag.org/api/etag/tag_reads/.json?";
-  if (selectedTag !== "all")
-  {
-    url += "tag=" + selectedTag + "&";
-  }
-  if (selectedReader !== "all")
-  {
-    url += "reader=" + selectedReader + "&";
-  }
-  var format = d3.time.format("%Y-%m-%d%%20%X");
-  url += "min_timestamp=" + format(selectedTime[0]) + "&";
-  url += "max_timestamp=" + format(selectedTime[1]);
-
-  d3.json(url, function (data) {
-    timeseries(500, 200, "#timeseries", data, selectedTag, selectedReader);
-    $.when(gettingReaderLocation).done(function(readersInfo) {zoomIntoTags(data, readersInfo);});
-  });
 }

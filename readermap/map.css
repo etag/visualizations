@@ -3,24 +3,3 @@
   height: 300px;
   width: 500px;
 }
-
-.axis path,
-.axis line {
-  fill: none;
-  stroke: black;
-  shape-rendering: crispEdges;
-}
-
-.background {
-  visibility: visible !important;
-  fill: gray;
-}
-.extent {
-  visibility: visible !important;
-  fill: #3399ff;
-}
-
-.resize rect {
-  visibility: visible !important;
-  fill: #ff6600;
-}

@@ -3,17 +3,25 @@
   <head>
     <meta charset="utf-8">
     <title>Reads map</title>
+
     <script src="bower_components/d3/d3.min.js"></script>
     <script src="bower_components/leaflet/dist/leaflet.js"></script>
     <script src="bower_components/jquery/dist/jquery.min.js"></script>
-    <script src="../timeseries/timeseries.js"></script>
-    <script src="createMap.js"></script>
     <link rel="stylesheet" href="bower_components/leaflet/dist/leaflet.css" />
-    <link rel="stylesheet" href="map.css" />
-    <link rel="stylesheet" href="../timeseries/timeseries.css" />
+
+    <script src="timeseries/timeseries.js"></script>
+    <script src="readermap/map.js"></script>
+    <script src="options/options.js"></script>
+    <link rel="stylesheet" href="readermap/map.css" />
+    <link rel="stylesheet" href="timeseries/timeseries.css" />
+    <link rel="stylesheet" href="options/options.css" />
   </head>
   <body>
     <div id="options"></div>
+    <div id="info">
+      <text></text>
+      <img id = "loading" src="ajax-loader.gif" alt="Loading..." style="display:none">
+    </div>
     <div id="map"></div>
     <div id="timeseries"><div>
     <script src="script.js"></script>
