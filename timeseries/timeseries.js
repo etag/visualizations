@@ -9,7 +9,7 @@ function timeseries(width, height, selector, data, tag, reader)
 {
   if (tag !== "all") key = "reader";
   else key = "tag";
-  
+
   lineWidth = 2;
   focusHeight = height*.5;
   gap = height*.2;
@@ -29,6 +29,7 @@ function timeseries(width, height, selector, data, tag, reader)
     tagsList = groupByKey(data.results, d3.select("#buttonKey").text());
     updateContext(brush);
   }
+
   d3.select("#buttonKey").on("click", toggle);
 }
 
@@ -117,7 +118,7 @@ function setupPage(selector, key, height, width, tag, reader)
     .attr("fill", "#EAEAD5");
   contextXScale = d3.time.scale().range([0, width]);
   contextG.append("g").attr("class","context axis").attr("transform","translate(0," + contextHeight + ")");
-  contextG.append("g").attr("id","brush_slider");
+  contextG.append("g").attr("id","timeseries_slider");
   contextXAxis = d3.svg.axis().scale(contextXScale).orient("bottom");
 
   colorScale = d3.scale.category10();
@@ -125,6 +126,8 @@ function setupPage(selector, key, height, width, tag, reader)
 
 function updateTimeseries(contextG, focusG, width, height)
 {
+    if (tagsList.length === 0) return;
+    
     colorScale.domain(d3.extent(tagsList, function(d, i) {return i}));
     var xMin = d3.min(tagsList, function(d) {return d3.min(d,function(e) {return e.tag_timestamp;});});
     var xMax = d3.max(tagsList, function(d) {return d3.max(d,function(e) {return e.tag_timestamp;});});
@@ -144,7 +147,7 @@ function updateTimeseries(contextG, focusG, width, height)
     var brush = d3.svg.brush()
       .x(contextXScale)
       .on("brush", brushed);
-    var slider = d3.select("#brush_slider");
+    var slider = d3.select("#timeseries_slider");
     brush(slider);
     slider.selectAll("rect")
       .attr("height", height);
